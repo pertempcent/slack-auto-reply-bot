@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Debug Environment Variables
-        run: env | grep SLACK
+      - name: Ensure data directory exists
+        run: mkdir -p data  # ✅ This ensures the 'data' folder exists
 
       - name: Run bot
         env:
