@@ -5,7 +5,7 @@ __pycache__/
 
 # Ignore virtual environment files (local dependencies)
 venv/
-.env  # Environment variables (DO NOT COMMIT)
+.env 
 
 # Ignore logs and temporary files
 *.log
