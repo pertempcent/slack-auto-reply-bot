@@ -1,7 +1,8 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+if os.getenv("GITHUB_ACTIONS") is None:
+    from dotenv import load_dotenv
+    load_dotenv()
 
 SLACK_USER_TOKEN = os.getenv("SLACK_USER_TOKEN")  
 
