@@ -2,7 +2,7 @@ import time
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from config import SLACK_USER_TOKEN
-from utils import get_user_name, log_task  # Importing utility functions
+from utils import get_user_name, log_task
 
 client = WebClient(token=SLACK_USER_TOKEN)
 
