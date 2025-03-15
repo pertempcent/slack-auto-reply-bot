@@ -1,11 +1,17 @@
-# Ignore Python cache files
+# Ignore Python cache files (compiled Python files)
 __pycache__/
 *.pyc
 *.pyo
 
-# Ignore virtual environments
+# Ignore virtual environment files (local dependencies)
 venv/
-.env
+.env  # Environment variables (DO NOT COMMIT)
 
 # Ignore logs and temporary files
 *.log
+
+# Ignore task log file (contains user-submitted tasks)
+data/tasks.csv
+
+# Ignore JSON files that store bot's last-replied timestamps
+last_replied.json
