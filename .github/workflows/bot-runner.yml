@@ -1,16 +1,13 @@
-name: Run Slack Auto-Reply Bot v3
+name: Run Slack Auto-Reply Bot
 
 on:
   schedule:
-    - cron: "*/1 * * * *"
+    - cron: "*/1 * * * *"  
   workflow_dispatch:
-
-permissions:
-  contents: write  # Grants write permissions for pushing
 
 jobs:
   run-bot:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -25,27 +22,25 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Ensure 'data' directory exists
-        run: mkdir -p data
+        run: |
+          echo "Creating data directory if not exists"
+          mkdir -p data
 
       - name: Run bot in background
         run: |
-          nohup python src/bot.py > bot.log 2>&1 &
+          nohup python src/bot.py > bot.log 2>&1 &  
         env:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
 
-      - name: Wait for bot to process messages
-        run: sleep 60  
+      - name: Wait for bot to process messages (e.g. 1 minute)
+        run: |
+          echo "Waiting for bot to process messages"
+          sleep 60  
 
       - name: Force add data/tasks.csv and commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add -f data/tasks.csv
+          git add -f data/tasks.csv  # Force add the file even though it is in .gitignore
           git commit -m "Update tasks.csv with new Slack messages" || echo "No changes to commit"
-          git push origin feature/refactor-cleanup  # Uses GITHUB_TOKEN with write permissions
-
-      - name: Upload logs for debugging
-        uses: actions/upload-artifact@v4
-        with:
-          name: bot-logs
-          path: bot.log
+          git push https://x-access-token:${{ secrets.PAT_GITHUB_TOKEN }}@github.com/pertempcent/slack-auto-reply-bot.git HEAD:feature/refactor-cleanup
