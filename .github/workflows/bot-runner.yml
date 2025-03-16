@@ -2,17 +2,17 @@ name: Run Slack Auto-Reply Bot
 
 on:
   schedule:
-    - cron: "*/1 * * * *"
+    - cron: "*/1 * * * *"  # Runs every minute
   workflow_dispatch:
 
 concurrency:
   group: "slack-auto-reply-bot"
-  cancel-in-progress: true
+  cancel-in-progress: true  # Ensures it cancels the previous run if a new one is triggered
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,15 +33,7 @@ jobs:
       - name: Run bot
         env:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
-        run: |
-          python src/bot.py
-
-      - name: Check if CSV file exists and log contents
-        run: |
-          echo "Checking contents of data folder"
-          ls -l data
-          echo "Checking contents of tasks.csv"
-          cat data/tasks.csv || echo "No tasks.csv file found."
+        run: python src/bot.py
 
       - name: Commit and Push Updated CSV
         env:
