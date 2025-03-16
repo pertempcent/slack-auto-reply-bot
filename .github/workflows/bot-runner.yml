@@ -8,7 +8,7 @@ on:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,9 +28,14 @@ jobs:
 
       - name: Run bot in background
         run: |
-          nohup python src/bot.py > bot.log 2>&1 &  # Start bot in the background and log output to bot.log
+          nohup python src/bot.py > bot.log 2>&1 &  
         env:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
+
+      - name: Wait for bot to process messages (e.g. 1 minute)
+        run: |
+          echo "Waiting for bot to process messages"
+          sleep 60  
 
       - name: Commit and Push Updated CSV
         env:
