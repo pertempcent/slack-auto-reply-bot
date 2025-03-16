@@ -2,26 +2,26 @@ name: Run Slack Auto-Reply Bot
 
 on:
   schedule:
-    - cron: "*/1 * * * *"  # Runs every minute
+    - cron: "*/1 * * * *"  
   workflow_dispatch:
 
 concurrency:
   group: "slack-auto-reply-bot"
-  cancel-in-progress: true  # Ensures it cancels the previous run if a new one is triggered
+  cancel-in-progress: true  
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
-      
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -33,7 +33,8 @@ jobs:
       - name: Run bot
         env:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
-        run: python src/bot.py
+        run: |
+          timeout 60s python src/bot.py  # Run for 60 seconds max, adjust as needed.
 
       - name: Commit and Push Updated CSV
         env:
