@@ -2,17 +2,13 @@ name: Run Slack Auto-Reply Bot
 
 on:
   schedule:
-    - cron: "*/1 * * * *"  
+    - cron: "*/1 * * * *"
   workflow_dispatch:
-
-concurrency:
-  group: "slack-auto-reply-bot"
-  cancel-in-progress: true  
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,11 +26,11 @@ jobs:
           echo "Creating data directory if not exists"
           mkdir -p data
 
-      - name: Run bot
+      - name: Run bot in background
+        run: |
+          nohup python src/bot.py > bot.log 2>&1 &  # Start bot in the background and log output to bot.log
         env:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
-        run: |
-          timeout 60s python src/bot.py  # Run for 60 seconds max, adjust as needed.
 
       - name: Commit and Push Updated CSV
         env:
