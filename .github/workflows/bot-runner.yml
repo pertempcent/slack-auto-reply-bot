@@ -8,6 +8,7 @@ on:
 concurrency:
   group: "slack-auto-reply-bot"
   cancel-in-progress: true  
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
