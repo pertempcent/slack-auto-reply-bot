@@ -2,9 +2,12 @@ name: Run Slack Auto-Reply Bot
 
 on:
   schedule:
-    - cron: "*/1 * * * *"  
+    - cron: "*/1 * * * *" 
   workflow_dispatch:
 
+concurrency:
+  group: "slack-auto-reply-bot"
+  cancel-in-progress: true  
 jobs:
   run-bot:
     runs-on: ubuntu-latest
