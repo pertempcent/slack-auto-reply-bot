@@ -6,7 +6,7 @@ on:
   workflow_dispatch: 
 
 permissions:
-  contents: write  
+  contents: write 
 
 jobs:
   run-bot:
@@ -34,18 +34,25 @@ jobs:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
 
       - name: Wait for bot to process messages
-        run: sleep 60  
+        run: sleep 600
 
       - name: Force add data/tasks.csv and commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add -f data/tasks.csv
+          git add -f data/tasks.csv  # Force add the file even though it is in .gitignore
           git commit -m "Update tasks.csv with new Slack messages" || echo "No changes to commit"
-          git push origin feature/refactor-cleanup
+          git push origin feature/refactor-cleanup  # Push changes to the feature branch
 
       - name: Upload logs for debugging
         uses: actions/upload-artifact@v4
         with:
           name: bot-logs
           path: bot.log
+
+      - name: Trigger next workflow run
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"event_type": "trigger-next-run"}' \
+            https://api.github.com/repos/${{ github.repository }}/dispatches
