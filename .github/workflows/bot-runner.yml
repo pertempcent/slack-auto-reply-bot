@@ -1,23 +1,29 @@
-name: Run Slack Auto-Reply Bot
+name: Run Slack Auto-Reply Bot v2  
 
 on:
   schedule:
-    - cron: "*/1 * * * *"  
+    - cron: "*/1 * * * *"
   workflow_dispatch:
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-22.04  # Explicit runner version
+
     steps:
+      - name: Debug GitHub Actions network
+        run: curl -L https://github.com/actions/upload-artifact/releases  # Check if runner can download
+
+      - name: Remove cached actions
+        run: rm -rf ~/.cache/actions/upload-artifact  # Ensure fresh action download
+
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.9"
-      
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
@@ -26,23 +32,27 @@ jobs:
           echo "Creating data directory if not exists"
           mkdir -p data
 
-      - name: Run bot
+      - name: Run bot in background
+        run: |
+          nohup python src/bot.py > bot.log 2>&1 &
         env:
           SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
-        run: python src/bot.py
 
-      - name: Commit and Push Updated CSV
-        env:
-          PAT_GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+      - name: Wait for bot to process messages
+        run: |
+          echo "Waiting for bot to process messages"
+          sleep 60  
+
+      - name: Force add data/tasks.csv and commit changes
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add data/tasks.csv
+          git add -f data/tasks.csv
           git commit -m "Update tasks.csv with new Slack messages" || echo "No changes to commit"
           git push https://x-access-token:${{ secrets.PAT_GITHUB_TOKEN }}@github.com/pertempcent/slack-auto-reply-bot.git HEAD:feature/refactor-cleanup
 
-      - name: Upload tasks.csv as an artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload logs for debugging
+        uses: actions/upload-artifact@v4  # Use v4 instead of v3
         with:
-          name: tasks-csv
-          path: data/tasks.csv
+          name: bot-logs
+          path: bot.log
